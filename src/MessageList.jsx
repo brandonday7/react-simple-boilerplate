@@ -19,7 +19,7 @@ export default MessageList;
 function renderMessageComponent(msgArray) {
   let messageComps = msgArray.map((msg) => {
     if (msg.type === 'incomingMessage') {
-      return <Message key={msg.key} user={msg.username} text={msg.content} />
+      return <Message color={msg.color} key={msg.key} user={msg.username} text={msg.content} />
     } else {
       return <div key={msg.key} className="message system">{msg.content}</div>
     }
