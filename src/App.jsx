@@ -29,7 +29,7 @@ class App extends Component {
     this.socket = new WebSocket('ws://localhost:3001');
 
   }
-
+''
 
   userInput = (msg) => {
     const newMessage = {type: 'postMessage', username: this.state.currentUser.name, content: msg, color: this.state.color};
@@ -37,6 +37,9 @@ class App extends Component {
   }
 
   changeUser = (name) => {
+    const socketChangeName = {type: 'nameChange', socketId: this.state.socketId, username: name};
+    this.socket.send(JSON.stringify(socketChangeName));
+
     const newNotification = {type: 'postNotification', content: `${this.state.currentUser.name} has changed their name to ${name}`};
     this.setState({currentUser: {name: name}});
     this.socket.send(JSON.stringify(newNotification)); //this send is to broadcast name change to all users
@@ -51,8 +54,16 @@ class App extends Component {
 
     this.socket.onmessage = (event) => {
       const incomingMsg = JSON.parse(event.data);
+
+      if (incomingMsg.type === 'connect') {
+        let message = {type: 'postNotification', content: `${this.state.currentUser.name} has joined the chat!`};
+        this.socket.send(JSON.stringify(message));
+      }
+
       if (incomingMsg.type === 'updateOnlineUsers') {
         this.setState({numberOfUsers: incomingMsg.usersOnline})
+      } else if (incomingMsg.type === 'setIdentifier') {
+        this.setState({socketId: incomingMsg.socketId})
       }
       const messages = this.state.messages.concat(incomingMsg);
       this.setState({messages});

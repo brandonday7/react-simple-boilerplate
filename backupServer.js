@@ -14,6 +14,7 @@ const server = express()
 // Create the WebSockets server
 const wss = new SocketServer({ server });
 let usersOnline = 0;
+let usersArr = [];
 
 
 
@@ -31,7 +32,12 @@ wss.on('connection', (ws) => {
   console.log('Client connected');
   usersOnline++;
   let message = {type: 'updateOnlineUsers', usersOnline};
+  ws.send(JSON.stringify({type: 'connect'}));
   wss.broadcast(message);
+
+  let newUser = {socketId: uuidv1(), socket: ws, username: 'Someone'};
+  ws.send(JSON.stringify({key: uuidv1(), type: 'setIdentifier', socketId: newUser.socketId}))
+  usersArr.push(newUser);
 
 
 
@@ -42,6 +48,8 @@ wss.on('connection', (ws) => {
       incomingMsg['type'] = 'incomingMessage';
   } else if (incomingMsg['type'] === 'postNotification') {
     incomingMsg['type'] = 'incomingNotification';
+  } else if (incomingMsg['type'] === 'nameChange') {
+    changeName(incomingMsg);
   } else {
     throw new Error(`Unknown event type ${data.type}`);
   }
@@ -51,6 +59,7 @@ wss.on('connection', (ws) => {
   // Set up a callback for when a client closes the socket. This usually means they closed their browser.
   ws.on('close', () => {
     usersOnline--;
+    // wss.broadcast(JSON.stringify(identifyWhoLeft(ws)));
     let message = {type: 'updateOnlineUsers', usersOnline};
     wss.broadcast(message);
     console.log('Client disconnected')
@@ -58,4 +67,23 @@ wss.on('connection', (ws) => {
 });
 
 
+function changeName(msg, currentSocket) {
+  usersArr.forEach(user => {
+    if (user.socketId === msg.socketId) {
+      user.username = msg.username;
+    }
+  })
+}
+
+
+// function identifyWhoLeft(ws) {
+//   console.log(ws)
+//   let message = '';
+//   usersArr.forEach(user => {
+//     if (user.readyState === 3) {
+//       message = {type: 'incomingNotification', content: `${user.username} has left the chat`};
+//     }
+//   })
+//   return message;
+// }
 
