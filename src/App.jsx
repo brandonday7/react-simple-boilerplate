@@ -55,16 +55,21 @@ class App extends Component {
     this.socket.onmessage = (event) => {
       const incomingMsg = JSON.parse(event.data);
 
+
+      //the following are special case handlers for notifying the server of name changes, who left, how many users, and who joined
       if (incomingMsg.type === 'connect') {
         let message = {type: 'postNotification', content: `${this.state.currentUser.name} has joined the chat!`};
         this.socket.send(JSON.stringify(message));
-      }
-
-      if (incomingMsg.type === 'updateOnlineUsers') {
+      } else if (incomingMsg.type === 'stillHere') {
+        incomingMsg.socketId = this.state.socketId;
+        this.socket.send(JSON.stringify(incomingMsg));
+      } else if (incomingMsg.type === 'updateOnlineUsers') {
         this.setState({numberOfUsers: incomingMsg.usersOnline})
       } else if (incomingMsg.type === 'setIdentifier') {
         this.setState({socketId: incomingMsg.socketId})
       }
+
+      //if it is just a plain old message/notification, simply re-render the messages as normal
       const messages = this.state.messages.concat(incomingMsg);
       this.setState({messages});
     }
