@@ -17,6 +17,8 @@ open http://localhost:3000
 
 For socket server:
 ```
+Open a different terminal window
+Go into chatty_server directory
 npm install
 node server.js
 ```
