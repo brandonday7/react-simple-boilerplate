@@ -4,7 +4,22 @@ import ChatBar from './ChatBar.jsx';
 import Nav from './Nav.jsx';
 
 
-function randomColor() {
+function findImage(msg) { //finds the image part of every message sent, if any
+  let splitMsg = msg.split(' ');
+  let links = '';
+  let regex = /\.png$|\.jpg$|\.gif$/;
+  splitMsg.forEach((word, index) => {
+    if (regex.test(word)) {
+      links = word;
+      splitMsg.splice(index, 1);
+    }
+  })
+
+  let textMsg = splitMsg.join(' ');
+  return {textMsg, links};
+}
+
+function randomColor() { //generates a random HEX colour for all users
   const list = '0123456789ABCDEF';
   let possibleChar = list.split('');
   let myColor = [];
@@ -29,10 +44,14 @@ class App extends Component {
     this.socket = new WebSocket('ws://localhost:3001');
 
   }
-''
 
   userInput = (msg) => {
-    const newMessage = {type: 'postMessage', username: this.state.currentUser.name, content: msg, color: this.state.color};
+    let obj = findImage(msg); //these lines split the message into its text and image contents
+    let message = obj.textMsg;
+    let image = obj.links;
+
+    const newMessage = {type: 'postMessage', username: this.state.currentUser.name, content: message, img: image, color: this.state.color};
+
     this.socket.send(JSON.stringify(newMessage));
   }
 
@@ -56,7 +75,7 @@ class App extends Component {
       const incomingMsg = JSON.parse(event.data);
 
 
-      //the following are special case handlers for notifying the server of name changes, who left, how many users, and who joined
+      //the following are special case handlers for notifying the server of who joined, who left, name changes, and how many users
       if (incomingMsg.type === 'connect') {
         let message = {type: 'postNotification', content: `${this.state.currentUser.name} has joined the chat!`};
         this.socket.send(JSON.stringify(message));
@@ -78,7 +97,6 @@ class App extends Component {
 
 
   render() {
-    console.log("Rendering <App/>");
     return (
       <div>
         <Nav users={this.state.numberOfUsers}/>

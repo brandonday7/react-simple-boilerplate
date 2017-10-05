@@ -4,7 +4,6 @@ import Message from './Message.jsx';
 
 class MessageList extends Component {
   render() {
-    console.log("Rendering <MessageList/>");
 
     return (
       <main className="messages">
@@ -19,7 +18,7 @@ export default MessageList;
 function renderMessageComponent(msgArray) {
   let messageComps = msgArray.map((msg) => {
     if (msg.type === 'incomingMessage') {
-      return <Message color={msg.color} key={msg.key} user={msg.username} text={msg.content} />
+      return <Message color={msg.color} key={msg.key} user={msg.username} text={msg.content} img={msg.img}/>
     } else {
       return <div key={msg.key} className="message system">{msg.content}</div>
     }
