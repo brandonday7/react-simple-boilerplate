@@ -8,10 +8,17 @@ Users are given a random color upon joining the chat. The server will broadcast 
 
 Install the dependencies and start the server.
 
+For client:
 ```
 npm install
 npm start
 open http://localhost:3000
+```
+
+For socket server:
+```
+npm install
+node server.js
 ```
 
 ### Dependencies
@@ -34,4 +41,6 @@ open http://localhost:3000
 * uuid
 
 ## Screenshots
+
+!["Chatty App in action!"](https://raw.github.com/brandonday7/react-simple-boilerplate/master/docs/chatty.png)
 
